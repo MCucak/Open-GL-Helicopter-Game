@@ -16,7 +16,6 @@ void display();
 void plane();
 void setLocation();
 void helicopter(int x, int y);
-
 #pragma endregion
 
 #pragma region Variables
@@ -31,6 +30,7 @@ int gameSpeed = 10;
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	plane();
+	deneme();
 	helicopter(50,70);
 	glutPostRedisplay();
 	glutSwapBuffers();
@@ -40,6 +40,9 @@ void setLocation() {
 	srand(time(NULL));
 	planeX = rand() % 431 + 25;
 	planeY = rand() % 150 + 25;
+	printf("planeX %d \n", planeX);
+	printf("planeY %d \n", planeY);
+
 }
 
 void key_entry(int key, int x, int y) {
@@ -82,8 +85,6 @@ int main(int argc, char** argv)
 	setLocation();
 
 	glutInit(&argc, argv);
-	printf("planeX %d \n", planeX);
-	printf("planeY %d \n", planeY);
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(600, 300);//glut penceresinin ekran konumu
