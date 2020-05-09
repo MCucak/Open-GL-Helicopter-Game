@@ -36,7 +36,7 @@ std::uniform_int_distribution<int> renk(0, 100);
 
 #pragma endregion
 #pragma region Variables
-int planeX, planeY;
+int planeX, planeY,stop=0;
 int windowSizeWidth = 480;
 int windowSizeHeight = 640;
 int gameSpeed = 10;
@@ -55,25 +55,24 @@ float r1, r2, r3, g1, g2, g3, b1, b2, b3;
 
 
 void display() {
-	glClear(GL_COLOR_BUFFER_BIT);
-	plane(); 
-	helikopter1();
-	helikopter2();
-	helikopter3();
-	isCrashed();
-	isWin();
-	glutPostRedisplay();
-	glutSwapBuffers();
-	ScoreText();
+	if (!stop) {
+		glClear(GL_COLOR_BUFFER_BIT);
+		plane();
+		helikopter1();
+		helikopter2();
+		helikopter3();
+		isCrashed();
+		isWin();
+		glutPostRedisplay();
+		glutSwapBuffers();
+		ScoreText();
+	}
 }
 
 void setLocation() {
 	srand(time(NULL));
 	planeX = ucakX(generator);
 	planeY = ucakY(generator);
-	printf("planeX %d \n", planeX);
-	printf("planeY %d \n", planeY);
-
 }
 
 void key_entry(int key, int x, int y) {
@@ -82,29 +81,28 @@ void key_entry(int key, int x, int y) {
 	case GLUT_KEY_UP:
 		planeY += gameSpeed;
 		if (planeY + 25 > windowSizeHeight) { planeY -= gameSpeed; }
-		printf("GLUT_KEY_UP %d \n", planeY);
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_DOWN:
 		planeY = planeY - gameSpeed;
 		if (planeY - 25 < 0) { planeY += gameSpeed; }
-		printf("GLUT_KEY_DOWN %d \n", planeY);
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_LEFT:
 		planeX = planeX - gameSpeed;
 		if (planeX - 25 < 0) { planeX += gameSpeed; }
-		printf("GLUT_KEY_LEFT %d \n", planeX);
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_RIGHT:
 		planeX = planeX + gameSpeed;
 		if (planeX + 30 > windowSizeWidth) { planeX -= gameSpeed; }
-		printf("GLUT_KEY_RIGHT %d \n", planeX);
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_HOME:
-		exit(0);
+		stop = 0;
+		printf("-------------YENI OYUN BASLIYOR----------- \n");
+		printf("Skor : %d  /  Hak : %d \n \n", Skor, hak);
+		display();
 		break;
 	}
 
@@ -399,9 +397,17 @@ void isCrashed() {
 		setLocation();
 		isCrashedPlane = 0;
 		hak -= 1;
+		printf("______________________ \n");
+		printf("Skor : %d  /  Hak : %d \n \n", Skor, hak);
+
 		if (hak == 0) {
+
+			printf("_________KAYBETTIN_____________ \n");
+			printf("Skor : %d  /  Hak : %d \n \n \n", Skor, hak);
+			stop = 1;
 			Skor = 0;
 			hak = 3;
+			difficulty = 0;
 		}
 		
 	}
@@ -409,8 +415,10 @@ void isCrashed() {
 void isWin() {
 	if (planeY > 600) {
 		difficulty += 1;
-		Skor += 1;
+		Skor += 10;
 		setLocation();
+		printf("______________________ \n");
+		printf("Skor : %d  /  Hak : %d  \n \n", Skor, hak);
 	}
 }
 float distance(int x1, int y1, int x2, int y2) {
@@ -423,6 +431,9 @@ float distance(int x1, int y1, int x2, int y2) {
 
 }
 void ScoreText() {
+
+
+
 
 
 
