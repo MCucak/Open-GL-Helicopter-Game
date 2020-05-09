@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <time.h>       
 #include <random>
+#include <list>
 
 using namespace std;
 #pragma endregion
@@ -22,9 +23,15 @@ void helikopter2();
 void helikopter3();
 void parametreAl(int heliId);
 void isCrashed();
+void isWin();
+int distance(int x1, int y1, int x2, int y2);
 std::default_random_engine generator;
-std::uniform_int_distribution<int> hizBulma(1, 6);
+std::uniform_int_distribution<int> hizBulma(1, 5);
 std::uniform_int_distribution<int> YonBulma(0, 1);
+std::uniform_int_distribution<int> ucakX(25, 431);
+std::uniform_int_distribution<int> ucakY(25, 150);
+std::uniform_int_distribution<int> renk(0, 100);
+
 #pragma endregion
 #pragma region Variables
 int planeX, planeY;
@@ -32,160 +39,17 @@ int windowSizeWidth = 480;
 int windowSizeHeight = 640;
 int gameSpeed = 10;
 float x1 = 0, x2 = 0, x3 = 0;
-int sagaHareket1 = YonBulma(generator);;
-int sagaHareket2 = YonBulma(generator);;
-int sagaHareket3= YonBulma(generator);;
-int difficulty = 1;
+int sagaHareket1 = YonBulma(generator);
+int sagaHareket2 = YonBulma(generator);
+int sagaHareket3= YonBulma(generator);
+float difficulty = 1;
 float Speed1, Speed2, Speed3;
 int reset1 = 1, reset2 = 1, reset3 = 1;
 int hak = 3;
 int hx1, hx2, hx3, hy1, hy2, hy3;
+int Skor = 0;
+int r1, r2, r3, g1, g2, g3, b1, b2, b3;
 #pragma endregion
-/*
-class Heli {
-public:
-	int x,y,isDirectionRight,extra;
-	float Speed;
-
-	Heli(int layer, int difficulty) {
-		srand(time(NULL));
-		isDirectionRight = rand() % 2;
-		if (isDirectionRight == 0) { x = 25; }
-		else { x = windowSizeWidth - 25; }
-		if (layer == 1) { y = 300; }
-		if (layer == 2) { y = 400; }
-		if (layer == 3) { y = 500; }
-		Speed = rand() % 7 + 1;
-		Speed = Speed * 0, 1 + difficulty;
-		helicopterUret();
-	}
-	void helicopterUret() {
-		int direction = 1;
-		glColor3f(0, 0, 1);
-		glPointSize(2.0f);
-		glLineWidth(2.0f);
-		if (isDirectionRight == 1) {
-#pragma region gövde
-			glBegin(GL_POLYGON); //1
-			glVertex2f((x - 5) * direction, y + 10);
-			glVertex2f((x + 15) * direction, y + 10);
-			glVertex2f((x + 25) * direction, y);
-			glVertex2f((x + 25) * direction, y - 10);
-			glVertex2f((x - 5) * direction, y - 10);
-			glEnd();
-#pragma endregion
-#pragma region kuyruk
-			glBegin(GL_LINES); //2
-			glVertex2f((x - 5) * direction, y);
-			glVertex2f((x - 20) * direction, y);
-			glEnd();
-
-			glBegin(GL_LINES); //3
-			glVertex2f((x - 25) * direction, y + 5);
-			glVertex2f((x - 15) * direction, y - 5);
-			glEnd();
-
-			glBegin(GL_LINES); //5  
-			glVertex2f((x - 25) * direction, y - 5);
-			glVertex2f((x - 15) * direction, y + 5);
-			glEnd();
-#pragma endregion
-#pragma region Pervane
-			glBegin(GL_LINES); //6  
-			glVertex2f((x + 5) * direction, y + 10);
-			glVertex2f((x + 5) * direction, y + 20);
-			glEnd();
-			glBegin(GL_LINES); //7  
-			glVertex2f((x - 15) * direction, y + 25);
-			glVertex2f((x + 25) * direction, y + 15);
-			glEnd();
-			glBegin(GL_LINES); //8  
-			glVertex2f((x - 15) * direction, y + 15);
-			glVertex2f((x + 25) * direction, y + 25);
-			glEnd();
-#pragma endregion
-#pragma region Ayak
-			glBegin(GL_LINES); //5  
-			glVertex2f((x + 5) * direction, y - 10);
-			glVertex2f((x + 5) * direction, y - 15);
-			glEnd();
-			glBegin(GL_LINES); //5  
-			glVertex2f((x + 20) * direction, y - 10);
-			glVertex2f((x + 20) * direction, y - 15);
-			glEnd();
-			glBegin(GL_LINES); //5  
-			glVertex2f((x - 10) * direction, y - 15);
-			glVertex2f((x + 25) * direction, y - 15);
-			glEnd();
-			glBegin(GL_LINES); //5  
-			glVertex2f((x - 10) * direction, y - 15);
-			glVertex2f((x - 10) * direction, y - 10);
-			glEnd();
-#pragma endregion
-		}
-		if (isDirectionRight == 0) {
-#pragma region gövde
-			glBegin(GL_POLYGON); //1
-			glVertex2f(((x - 5) * direction) + 2 * x, y + 10);
-			glVertex2f(((x + 15) * direction) + 2 * x, y + 10);
-			glVertex2f(((x + 25) * direction) + 2 * x, y);
-			glVertex2f(((x + 25) * direction) + 2 * x, y - 10);
-			glVertex2f(((x - 5) * direction) + 2 * x, y - 10);
-			glEnd();
-#pragma endregion
-#pragma region kuyruk
-			glBegin(GL_LINES); //2
-			glVertex2f(((x - 5) * direction) + 2 * x, y);
-			glVertex2f(((x - 20) * direction) + 2 * x, y);
-			glEnd();
-
-			glBegin(GL_LINES); //3
-			glVertex2f(((x - 25) * direction) + 2 * x, y + 5);
-			glVertex2f(((x - 15) * direction) + 2 * x, y - 5);
-			glEnd();
-
-			glBegin(GL_LINES); //5  
-			glVertex2f(((x - 25) * direction) + 2 * x, y - 5);
-			glVertex2f(((x - 15) * direction) + 2 * x, y + 5);
-			glEnd();
-#pragma endregion
-#pragma region Pervane
-			glBegin(GL_LINES); //6  
-			glVertex2f(((x + 5) * direction) + 2 * x, y + 10);
-			glVertex2f(((x + 5) * direction) + 2 * x, y + 20);
-			glEnd();
-			glBegin(GL_LINES); //7  
-			glVertex2f(((x - 15) * direction) + 2 * x, y + 25);
-			glVertex2f(((x + 25) * direction) + 2 * x, y + 15);
-			glEnd();
-			glBegin(GL_LINES); //8  
-			glVertex2f(((x - 15) * direction) + 2 * x, y + 15);
-			glVertex2f(((x + 25) * direction) + 2 * x, y + 25);
-			glEnd();
-#pragma endregion
-#pragma region Ayak
-			glBegin(GL_LINES); //5  
-			glVertex2f(((x + 5) * direction) + 2 * x, y - 10);
-			glVertex2f(((x + 5) * direction) + 2 * x, y - 15);
-			glEnd();
-			glBegin(GL_LINES); //5  
-			glVertex2f(((x + 20) * direction) + 2 * x, y - 10);
-			glVertex2f(((x + 20) * direction) + 2 * x, y - 15);
-			glEnd();
-			glBegin(GL_LINES); //5  
-			glVertex2f(((x - 10) * direction) + 2 * x, y - 15);
-			glVertex2f(((x + 25) * direction) + 2 * x, y - 15);
-			glEnd();
-			glBegin(GL_LINES); //5  
-			glVertex2f(((x - 10) * direction) + 2 * x, y - 15);
-			glVertex2f(((x - 10) * direction) + 2 * x, y - 10);
-			glEnd();
-#pragma endregion
-		}
-		glFlush();
-	}
-};
-*/
 
 
 void display() {
@@ -195,14 +59,15 @@ void display() {
 	helikopter2();
 	helikopter3();
 	isCrashed();
+	isWin();
 	glutPostRedisplay();
 	glutSwapBuffers();
 }
 
 void setLocation() {
 	srand(time(NULL));
-	planeX = rand() % 431 + 25;
-	planeY = rand() % 150 + 25;
+	planeX = ucakX(generator);
+	planeY = ucakY(generator);
 	printf("planeX %d \n", planeX);
 	printf("planeY %d \n", planeY);
 
@@ -261,7 +126,6 @@ int main(int argc, char** argv)
 }
 
 void plane() {
-	glColor3f(0, 0, 1);
 	glPointSize(5.0f);
 	glLineWidth(5.0f);
 	glBegin(GL_LINES); //1
@@ -281,7 +145,6 @@ void plane() {
 
 void helicopterStraight(int x, int y) {
 	int direction = 1;
-	glColor3f(0, 0, 1);
 	glPointSize(2.0f);
 	glLineWidth(2.0f);
 #pragma region gövde
@@ -349,7 +212,6 @@ void helicopterStraight(int x, int y) {
 
 void helicopterReverse(int x, int y) {
 	int direction = -1;
-	glColor3f(0, 0, 1);
 	glPointSize(2.0f);
 	glLineWidth(2.0f);
 #pragma region gövde
@@ -422,7 +284,9 @@ void helikopter1(){
 		if (25 + x1 > 480) {
 			parametreAl(1);
 			x1 = 0;
+			
 		}
+		hx1 = 25 + x1;
 	}
 	if (sagaHareket1 == 0) {
 		helicopterReverse(480 - x1, 300);
@@ -430,7 +294,9 @@ void helikopter1(){
 		if (480-x1 < 0) {
 			parametreAl(1);
 			x1 = 0;
+
 		}
+		hx1 = 480 - x1;
 	}
 	hy1 = 300;
 }
@@ -439,12 +305,14 @@ void helikopter2(){
 		parametreAl(2);
 	}
 	if (sagaHareket2 == 1) {
+		glColor3f(r1, g1, b1);
 		helicopterStraight(25+x2, 400);
 		x2 += Speed2;
 		if (25 + x2 > 480) {
 			parametreAl(2);
 			x2 = 0;
 		}
+		hx2 = 25 + x2;
 	}
 	if (sagaHareket2 == 0) {
 		helicopterReverse(480 - x2, 400);
@@ -453,7 +321,9 @@ void helikopter2(){
 			parametreAl(2);
 			x2 = 0;
 		}
+		hx2 = 480 - x2;
 	}
+	hy2 = 400;
 }
 void helikopter3(){
 
@@ -467,6 +337,7 @@ void helikopter3(){
 			parametreAl(3);
 			x3 = 0;
 		}
+		hx3 = 25 + x3;
 	}
 	if (sagaHareket3 == 0) {
 		helicopterReverse(480 - x3, 500);
@@ -475,33 +346,68 @@ void helikopter3(){
 			parametreAl(3);
 			x3 = 0;
 		}
+		hx3 = 480 - x3;
 	}
+	hy3 = 500;
 }
 void parametreAl(int heliId) {
 	if (heliId == 1) {
-		srand(time(NULL));
-		sagaHareket1= rand() % 2;
-		if(sagaHareket2 == 1){}
+		sagaHareket1 = YonBulma(generator);
 		Speed1 = hizBulma(generator);
-		Speed1 = Speed1 * 0.01 + difficulty * 0, 2;
+		Speed1 = Speed1 * 0.01 + difficulty * 0.02;
 		reset1 = 0;
+		r1 = renk(generator) * 0.01;
+		g1 = renk(generator) * 0.01;
+		b1 = renk(generator) * 0.01;
 	}
 	if (heliId == 2) {
-		srand(time(NULL));
-		sagaHareket2 = rand() % 2;
+		sagaHareket2 = YonBulma(generator);
 		Speed2 = hizBulma(generator);
-		Speed2 = Speed2 * 0.01 + difficulty * 0, 2;
+		Speed2 = Speed2 * 0.01 + difficulty * 0.02;
 		reset2 = 0;
+
 	}
 	if (heliId == 3) {
-		srand(time(NULL));
-		sagaHareket1 = rand() % 2;
+		sagaHareket3 = YonBulma(generator);
 		Speed3 = hizBulma(generator);
-		Speed3 = Speed3 * 0.01 + difficulty * 0, 2;
+		Speed3 = Speed3 * 0.01 + difficulty * 0.02;
 		reset3 = 0;
 	}
 }
 
 void isCrashed() {
+	int isCrashedPlane = 0;
+	int H1D = distance(planeX, planeY, hx1, hy1);
+	if (H1D < 40) { isCrashedPlane=1; }
+	int H2D = distance(planeX, planeY, hx2, hy2);
+	if (H2D < 40) { isCrashedPlane = 1; }
+	int H3D = distance(planeX, planeY, hx3, hy3);
+	if (H3D < 40) { isCrashedPlane = 1; }
+
+	if (isCrashedPlane == 1) {
+		setLocation();
+		isCrashedPlane = 0;
+		hak -= 1;
+		if (hak == 0) {
+			Skor = 0;
+			hak = 3;
+		}
+		
+	}
+}
+void isWin() {
+	if (planeY > 600) {
+		difficulty += 1;
+		Skor += 1;
+		setLocation();
+	}
+}
+int distance(int x1, int y1, int x2, int y2) {
+
+	float xDis = abs(x1 - x2);
+	float yDis = abs(y1 - y2);
+	float zDis = xDis * xDis + yDis * yDis;
+	
+	return sqrt(zDis);
 
 }
