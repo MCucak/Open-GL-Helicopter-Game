@@ -1,13 +1,11 @@
 #pragma region Usings
 #include"glew.h"
 #include"freeglut.h"
-#include<iostream>
-#include<windows.h>
-#include<stdlib.h>
+#include <iostream>
+#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>       
 #include <random>
-#include <list>
 #include <GL/glut.h>
 
 using namespace std;
