@@ -7,6 +7,7 @@
 #include <time.h>       
 #include <random>
 #include <GL/glut.h>
+#include <string>
 
 using namespace std;
 #pragma endregion
@@ -20,11 +21,14 @@ void helicopterReverse(int x, int y ,float r, float g,float b);
 void helikopter1();
 void helikopter2();
 void helikopter3();
+void helikopter4();
 void parametreAl(int heliId);
 void isCrashed();
 void isWin();
 float distance(int x1, int y1, int x2, int y2);
 void ScoreText();
+void LoseText();
+void textShow(std::string text, int x, int y);
 std::default_random_engine generator;
 std::uniform_int_distribution<int> hizBulma(1, 5);
 std::uniform_int_distribution<int> YonBulma(0, 1);
@@ -38,32 +42,35 @@ int planeX, planeY,stop=0;
 int windowSizeWidth = 480;
 int windowSizeHeight = 640;
 int gameSpeed = 10;
-float x1 = 0, x2 = 0, x3 = 0;
+float x1 = 0, x2 = 0, x3 = 0 ,x4 = 0;
 int sagaHareket1 = YonBulma(generator);
 int sagaHareket2 = YonBulma(generator);
 int sagaHareket3= YonBulma(generator);
+int sagaHareket4 = YonBulma(generator);
 float difficulty = 1;
-float Speed1, Speed2, Speed3;
-int reset1 = 1, reset2 = 1, reset3 = 1;
+float Speed1, Speed2, Speed3, Speed4;
+int reset1 = 1, reset2 = 1, reset3 = 1, reset4 = 1;
 int hak = 3;
-int hx1, hx2, hx3, hy1, hy2, hy3;
+int hx1, hx2, hx3, hx4, hy1, hy2, hy3, hy4;
 int Skor = 0;
-float r1, r2, r3, g1, g2, g3, b1, b2, b3;
+float r1, r2, r3, r4, g1, g2, g3, g4, b1, b2, b3, b4;
 #pragma endregion
-
 
 void display() {
 	if (!stop) {
+		glMatrixMode(GL_PROJECTION);
 		glClear(GL_COLOR_BUFFER_BIT);
 		plane();
+		ScoreText();
 		helikopter1();
 		helikopter2();
 		helikopter3();
+		helikopter4();
 		isCrashed();
 		isWin();
+		glFlush();
 		glutPostRedisplay();
 		glutSwapBuffers();
-		ScoreText();
 	}
 }
 
@@ -103,8 +110,6 @@ void key_entry(int key, int x, int y) {
 		display();
 		break;
 	}
-
-
 }
 
 int main(int argc, char** argv)
@@ -140,7 +145,6 @@ void plane() {
 	glVertex2f(planeX - 10, planeY - 20);
 	glVertex2f(planeX + 10, planeY - 20);
 	glEnd();
-	glFlush();
 }
 
 void helicopterStraight(int x, int y,float r,float g,float b) {
@@ -208,7 +212,7 @@ void helicopterStraight(int x, int y,float r,float g,float b) {
 	glVertex2f((x - 10) * direction, y - 10);
 	glEnd();
 #pragma endregion
-	glFlush();
+
 }
 
 void helicopterReverse(int x, int y,float r,float g,float b) {
@@ -273,30 +277,28 @@ void helicopterReverse(int x, int y,float r,float g,float b) {
 	glVertex2f(((x - 10) * direction) + 2 * x, y - 10);
 	glEnd();
 #pragma endregion
-	glFlush();
 }
 
 void helikopter1(){
+	glLoadIdentity();
 	if(reset1==1){
 		parametreAl(1); 
 	}
 	if (sagaHareket1 == 1) {
-		helicopterStraight(25+x1, 300,r1,g1,b1);
+		helicopterStraight(25+x1, 250,r1,g1,b1);
 		x1 += Speed1;
 		if (25 + x1 > 480) {
 			parametreAl(1);
 			x1 = 0;
-			
 		}
 		hx1 = 25 + x1;
 	}
 	if (sagaHareket1 == 0) {
-		helicopterReverse(480 - x1, 300,r1,g1,b1);
+		helicopterReverse(480 - x1, 250,r1,g1,b1);
 		x1 += Speed1;
 		if (480-x1 < 0) {
 			parametreAl(1);
 			x1 = 0;
-
 		}
 		hx1 = 480 - x1;
 	}
@@ -307,7 +309,7 @@ void helikopter2(){
 		parametreAl(2);
 	}
 	if (sagaHareket2 == 1) {
-		helicopterStraight(25+x2, 400,r2,g2,b2);
+		helicopterStraight(25+x2, 330,r2,g2,b2);
 		x2 += Speed2;
 		if (25 + x2 > 480) {
 			parametreAl(2);
@@ -316,7 +318,7 @@ void helikopter2(){
 		hx2 = 25 + x2;
 	}
 	if (sagaHareket2 == 0) {
-		helicopterReverse(480 - x2, 400,r2,g2,b2);
+		helicopterReverse(480 - x2, 330,r2,g2,b2);
 		x2 += Speed2;
 		if (480 - x2 < 0) {
 			parametreAl(2);
@@ -332,7 +334,7 @@ void helikopter3(){
 		parametreAl(3);
 	}
 	if (sagaHareket3 == 1) {
-		helicopterStraight(25 + x3, 500,r3,g3,b3);
+		helicopterStraight(25 + x3, 410,r3,g3,b3);
 		x3 += Speed3;
 		if (25 + x3 > 480) {
 			parametreAl(3);
@@ -341,7 +343,7 @@ void helikopter3(){
 		hx3 = 25 + x3;
 	}
 	if (sagaHareket3 == 0) {
-		helicopterReverse(480 - x3, 500,r3,g3,b3);
+		helicopterReverse(480 - x3, 410,r3,g3,b3);
 		x3 += Speed3;
 		if (480 - x3 < 0) {
 			parametreAl(3);
@@ -351,6 +353,33 @@ void helikopter3(){
 	}
 	hy3 = 500;
 }
+
+void helikopter4() {
+
+	if (reset4 == 1) {
+		parametreAl(4);
+	}
+	if (sagaHareket4 == 1) {
+		helicopterStraight(25 + x4, 490, r4, g4, b4);
+		x4 += Speed4;
+		if (25 + x4 > 480) {
+			parametreAl(4);
+			x4 = 0;
+		}
+		hx4 = 25 + x4;
+	}
+	if (sagaHareket4 == 0) {
+		helicopterReverse(480 - x4, 490, r4, g4, b4);
+		x4 += Speed4;
+		if (480 - x4 < 0) {
+			parametreAl(4);
+			x4 = 0;
+		}
+		hx4 = 480 - x4;
+	}
+	hy4 = 500;
+}
+
 void parametreAl(int heliId) {
 	if (heliId == 1) {
 		sagaHareket1 = YonBulma(generator);
@@ -361,6 +390,7 @@ void parametreAl(int heliId) {
 		g1 = renk(generator) * 0.01;
 		b1 = renk(generator) * 0.01;
 	}
+
 	if (heliId == 2) {
 		sagaHareket2 = YonBulma(generator);
 		Speed2 = hizBulma(generator);
@@ -371,54 +401,62 @@ void parametreAl(int heliId) {
 		b2 = renk(generator) * 0.01;
 
 	}
+
 	if (heliId == 3) {
 		sagaHareket3 = YonBulma(generator);
 		Speed3 = hizBulma(generator);
 		Speed3 = Speed3 * 0.01 + difficulty * 0.02;
 		reset3 = 0;
-		r3 = 1;
+		r3 = renk(generator) * 0.01;
 		g3 = renk(generator) * 0.01;
 		b3 = renk(generator) * 0.01;
+	}
+
+	if (heliId == 4) {
+		sagaHareket4 = YonBulma(generator);
+		Speed4 = hizBulma(generator);
+		Speed4 = Speed4 * 0.01 + difficulty * 0.02;
+		reset4 = 0;
+		r4 = renk(generator) * 0.01;
+		g4 = renk(generator) * 0.01;
+		b4 = renk(generator) * 0.01;
 	}
 }
 
 void isCrashed() {
 	int isCrashedPlane = 0;
 	int H1D = distance(planeX, planeY, hx1, hy1);
-	if (H1D < 40) { isCrashedPlane=1; }
+	if (H1D < 40) { isCrashedPlane = 1; }
 	int H2D = distance(planeX, planeY, hx2, hy2);
 	if (H2D < 40) { isCrashedPlane = 1; }
 	int H3D = distance(planeX, planeY, hx3, hy3);
 	if (H3D < 40) { isCrashedPlane = 1; }
+	int H4D = distance(planeX, planeY, hx4, hy4);
+	if (H4D < 40) { isCrashedPlane = 1; }
 
 	if (isCrashedPlane == 1) {
 		setLocation();
 		isCrashedPlane = 0;
 		hak -= 1;
-		printf("______________________ \n");
-		printf("Skor : %d  /  Hak : %d \n \n", Skor, hak);
 
 		if (hak == 0) {
-
-			printf("_________KAYBETTIN_____________ \n");
-			printf("Skor : %d  /  Hak : %d \n \n \n", Skor, hak);
+			LoseText();
 			stop = 1;
 			Skor = 0;
 			hak = 3;
 			difficulty = 0;
 		}
-		
 	}
 }
+
 void isWin() {
 	if (planeY > 600) {
 		difficulty += 1;
 		Skor += 10;
 		setLocation();
-		printf("______________________ \n");
-		printf("Skor : %d  /  Hak : %d  \n \n", Skor, hak);
 	}
 }
+
 float distance(int x1, int y1, int x2, int y2) {
 
 	float xDis = abs(x1 - x2);
@@ -428,12 +466,33 @@ float distance(int x1, int y1, int x2, int y2) {
 	return sqrt(zDis);
 
 }
-void ScoreText() {
 
+void ScoreText()
+{	
+	string skorText = "Skor : " + to_string(Skor);
 
+	string heartText = "Hak : " + to_string(hak);
 
+	textShow(skorText, 320, 620);
+	textShow(heartText, 400, 620);
+}
 
+void textShow(std::string text, int x, int y) {
+	std::string shownText = text;
+	std::string& shownTextPointer = shownText;
 
+	glColor3f(0, 0, 0);
+	glRasterPos2i(x, y);
+	for (int i = 0; i < shownText.size(); i++) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, shownTextPointer[i]);
+	}
+}
 
+void LoseText()
+{
+	string skorText = "Kaybettin! Puan : " + to_string(Skor);
+	string againText = "YENIDEN BASLAMAK ICIN 'HOME' TUSUNA BAS..";
 
-}	
+	textShow(skorText, 150, 150);
+	textShow(againText, 20, 100);
+}
