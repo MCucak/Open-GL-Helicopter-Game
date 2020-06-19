@@ -8,16 +8,17 @@
 #include <random>
 #include <GL/glut.h>
 #include <string>
-
+// TODO : HOW TO PREVENT RESHAPE OPENGL 
 using namespace std;
 #pragma endregion
 #pragma region Method Definitions
 void key_entry(int key, int x, int y);
+void keyPress(unsigned char key, int x, int y);
 void display();
 void plane();
 void setLocation();
-void helicopterStraight(int x, int y,float r, float g,float b);
-void helicopterReverse(int x, int y ,float r, float g,float b);
+void helicopterStraight(int x, int y, float r, float g, float b);
+void helicopterReverse(int x, int y, float r, float g, float b);
 void helikopter1();
 void helikopter2();
 void helikopter3();
@@ -28,7 +29,10 @@ void isWin();
 float distance(int x1, int y1, int x2, int y2);
 void ScoreText();
 void LoseText();
-void textShow(std::string text, int x, int y);
+void textShow(std::string text, int x, int y, bool color);
+void menuShow();
+void infoShow();
+void drawButton(int x, int y, string text, int r, int g, int b);
 std::default_random_engine generator;
 std::uniform_int_distribution<int> hizBulma(1, 5);
 std::uniform_int_distribution<int> YonBulma(0, 1);
@@ -38,14 +42,14 @@ std::uniform_int_distribution<int> renk(0, 100);
 
 #pragma endregion
 #pragma region Variables
-int planeX, planeY,stop=0;
+int planeX, planeY, stop = 0;
 int windowSizeWidth = 480;
 int windowSizeHeight = 640;
 int gameSpeed = 10;
-float x1 = 0, x2 = 0, x3 = 0 ,x4 = 0;
+float x1 = 0, x2 = 0, x3 = 0, x4 = 0;
 int sagaHareket1 = YonBulma(generator);
 int sagaHareket2 = YonBulma(generator);
-int sagaHareket3= YonBulma(generator);
+int sagaHareket3 = YonBulma(generator);
 int sagaHareket4 = YonBulma(generator);
 float difficulty = 1;
 float Speed1, Speed2, Speed3, Speed4;
@@ -54,20 +58,33 @@ int hak = 3;
 int hx1, hx2, hx3, hx4, hy1, hy2, hy3, hy4;
 int Skor = 0;
 float r1, r2, r3, r4, g1, g2, g3, g4, b1, b2, b3, b4;
+bool showMenu = true, showHelp = false;
+int selectedMenuItem = 1;
 #pragma endregion
 
 void display() {
 	if (!stop) {
 		glMatrixMode(GL_PROJECTION);
 		glClear(GL_COLOR_BUFFER_BIT);
-		plane();
-		ScoreText();
-		helikopter1();
-		helikopter2();
-		helikopter3();
-		helikopter4();
-		isCrashed();
-		isWin();
+		if (showMenu) {
+			if (showHelp) {
+				infoShow();
+			}
+			else
+			{
+				menuShow();
+			}
+		}
+		else {
+			plane();
+			ScoreText();
+			helikopter1();
+			helikopter2();
+			helikopter3();
+			helikopter4();
+			isCrashed();
+			isWin();
+		}
 		glFlush();
 		glutPostRedisplay();
 		glutSwapBuffers();
@@ -80,15 +97,66 @@ void setLocation() {
 	planeY = ucakY(generator);
 }
 
-void key_entry(int key, int x, int y) {
+void menuShow() {
+	glColor3f(1, 0, 0);
+	int r = 0, g = 1, b = 1, r2 = 0, g2 = 1, b2 = 1;
+	textShow("Oyuna Hosgeldin", 170, 450, 1);
+	if (selectedMenuItem == 1) {
+		r = 0;
+		g = 0;
+		b = 1;
+	}
+	drawButton(150, 350, "Basla", r, g, b);
+	if (selectedMenuItem == 2) {
+		r2 = 0;
+		g2 = 0;
+		b2 = 1;
+	}
+	drawButton(150, 250, "Yardim", r2, g2, b2);
+}
 
+void drawButton(int x, int y, string text, int r, int g, int b) {
+	glColor3f(r, g, b);
+	glPointSize(5.0f);
+	glLineWidth(5.0f);
+	glBegin(GL_QUADS);
+	glVertex2f(x - 10, y - 30);
+	glVertex2f(x - 10, y + 30);
+	glVertex2f(x + 100, y + 30);
+	glVertex2f(x + 100, y - 30);
+	glEnd();
+	textShow(text, x, y, 0);
+
+
+}
+
+void infoShow() {
+	textShow("Oyunda ki gorevin ", 100, 450, 0);
+	textShow("ucagi hedeflere carpmadan", 100, 430, 0);
+	textShow("oyun alaninin sonuna goturmek", 100, 410, 0);
+	textShow("Ucagi ok tuslari ile kontrol edebilirsin", 100, 380, 0);
+	textShow("ESC tusu ile oyundan cikabilir,", 100, 360, 0);
+	textShow("HOME tusu ile tekrar baslatabilirsin", 100, 340, 0);
+	glColor3f(1, 0, 0);
+	textShow("Ana ekrana donmek icin ESC bas..", 100, 240, 1);
+}
+
+void key_entry(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_UP:
+		if (showMenu) {
+			if (selectedMenuItem > 1)
+				selectedMenuItem--;
+		}
 		planeY += gameSpeed;
 		if (planeY + 25 > windowSizeHeight) { planeY -= gameSpeed; }
 		glutPostRedisplay();
 		break;
 	case GLUT_KEY_DOWN:
+		if (showMenu) {
+			if (selectedMenuItem < 2)
+				selectedMenuItem++;
+		}
 		planeY = planeY - gameSpeed;
 		if (planeY - 25 < 0) { planeY += gameSpeed; }
 		glutPostRedisplay();
@@ -105,15 +173,31 @@ void key_entry(int key, int x, int y) {
 		break;
 	case GLUT_KEY_HOME:
 		stop = 0;
-		printf("-------------YENI OYUN BASLIYOR----------- \n");
-		printf("Skor : %d  /  Hak : %d \n \n", Skor, hak);
 		display();
+		break;
+	case GLUT_KEY_F1:
+		showHelp = true;
 		break;
 	}
 }
 
-int main(int argc, char** argv)
-{
+void keyPress(unsigned char key, int x, int y) {
+	switch (key) {
+	case 13:
+		if (selectedMenuItem == 1) {
+			showMenu = false;
+		}
+		if (selectedMenuItem == 2) {
+			showHelp = true;
+		}
+		break;
+	case 27:
+		showMenu = true;
+		showHelp = false;
+	}
+}
+
+int main(int argc, char** argv){
 	setLocation();
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
@@ -122,10 +206,11 @@ int main(int argc, char** argv)
 	glutCreateWindow("Dinamikleþtik Aðam");
 	glClearColor(1, 1, 1, 0);
 	gluOrtho2D(0, 480, 0.0, 640);
+	glutReshapeWindow(480, 640);
 	glutDisplayFunc(display);
+	glutKeyboardFunc(keyPress);
 	glutSpecialFunc(key_entry);
 	glutMainLoop();
-
 	return 0;
 }
 
@@ -147,7 +232,7 @@ void plane() {
 	glEnd();
 }
 
-void helicopterStraight(int x, int y,float r,float g,float b) {
+void helicopterStraight(int x, int y, float r, float g, float b) {
 	int direction = 1;
 	glColor3f(r, g, b);
 	glPointSize(2.0f);
@@ -215,7 +300,7 @@ void helicopterStraight(int x, int y,float r,float g,float b) {
 
 }
 
-void helicopterReverse(int x, int y,float r,float g,float b) {
+void helicopterReverse(int x, int y, float r, float g, float b) {
 	int direction = -1;
 	glColor3f(r, g, b);
 	glPointSize(2.0f);
@@ -279,13 +364,13 @@ void helicopterReverse(int x, int y,float r,float g,float b) {
 #pragma endregion
 }
 
-void helikopter1(){
+void helikopter1() {
 	glLoadIdentity();
-	if(reset1==1){
-		parametreAl(1); 
+	if (reset1 == 1) {
+		parametreAl(1);
 	}
 	if (sagaHareket1 == 1) {
-		helicopterStraight(25+x1, 250,r1,g1,b1);
+		helicopterStraight(25 + x1, 250, r1, g1, b1);
 		x1 += Speed1;
 		if (25 + x1 > 480) {
 			parametreAl(1);
@@ -294,22 +379,22 @@ void helikopter1(){
 		hx1 = 25 + x1;
 	}
 	if (sagaHareket1 == 0) {
-		helicopterReverse(480 - x1, 250,r1,g1,b1);
+		helicopterReverse(480 - x1, 250, r1, g1, b1);
 		x1 += Speed1;
-		if (480-x1 < 0) {
+		if (480 - x1 < 0) {
 			parametreAl(1);
 			x1 = 0;
 		}
 		hx1 = 480 - x1;
 	}
-	hy1 = 300;
+	hy1 = 255;
 }
-void helikopter2(){
+void helikopter2() {
 	if (reset2 == 1) {
 		parametreAl(2);
 	}
 	if (sagaHareket2 == 1) {
-		helicopterStraight(25+x2, 330,r2,g2,b2);
+		helicopterStraight(25 + x2, 330, r2, g2, b2);
 		x2 += Speed2;
 		if (25 + x2 > 480) {
 			parametreAl(2);
@@ -318,7 +403,7 @@ void helikopter2(){
 		hx2 = 25 + x2;
 	}
 	if (sagaHareket2 == 0) {
-		helicopterReverse(480 - x2, 330,r2,g2,b2);
+		helicopterReverse(480 - x2, 330, r2, g2, b2);
 		x2 += Speed2;
 		if (480 - x2 < 0) {
 			parametreAl(2);
@@ -326,15 +411,15 @@ void helikopter2(){
 		}
 		hx2 = 480 - x2;
 	}
-	hy2 = 400;
+	hy2 = 335;
 }
-void helikopter3(){
+void helikopter3() {
 
 	if (reset3 == 1) {
 		parametreAl(3);
 	}
 	if (sagaHareket3 == 1) {
-		helicopterStraight(25 + x3, 410,r3,g3,b3);
+		helicopterStraight(25 + x3, 410, r3, g3, b3);
 		x3 += Speed3;
 		if (25 + x3 > 480) {
 			parametreAl(3);
@@ -343,7 +428,7 @@ void helikopter3(){
 		hx3 = 25 + x3;
 	}
 	if (sagaHareket3 == 0) {
-		helicopterReverse(480 - x3, 410,r3,g3,b3);
+		helicopterReverse(480 - x3, 410, r3, g3, b3);
 		x3 += Speed3;
 		if (480 - x3 < 0) {
 			parametreAl(3);
@@ -351,7 +436,7 @@ void helikopter3(){
 		}
 		hx3 = 480 - x3;
 	}
-	hy3 = 500;
+	hy3 = 415;
 }
 
 void helikopter4() {
@@ -377,7 +462,7 @@ void helikopter4() {
 		}
 		hx4 = 480 - x4;
 	}
-	hy4 = 500;
+	hy4 = 495;
 }
 
 void parametreAl(int heliId) {
@@ -426,13 +511,15 @@ void parametreAl(int heliId) {
 void isCrashed() {
 	int isCrashedPlane = 0;
 	int H1D = distance(planeX, planeY, hx1, hy1);
-	if (H1D < 40) { isCrashedPlane = 1; }
+	if (H1D < 46) { isCrashedPlane = 1; }
 	int H2D = distance(planeX, planeY, hx2, hy2);
-	if (H2D < 40) { isCrashedPlane = 1; }
+	if (H2D < 46) { isCrashedPlane = 1; }
 	int H3D = distance(planeX, planeY, hx3, hy3);
-	if (H3D < 40) { isCrashedPlane = 1; }
+	if (H3D < 46) { isCrashedPlane = 1; }
 	int H4D = distance(planeX, planeY, hx4, hy4);
-	if (H4D < 40) { isCrashedPlane = 1; }
+	if (H4D < 46) { isCrashedPlane = 1; }
+	glColor3f(0, 0, 0);
+	glPointSize(1.0f);
 
 	if (isCrashedPlane == 1) {
 		setLocation();
@@ -462,26 +549,26 @@ float distance(int x1, int y1, int x2, int y2) {
 	float xDis = abs(x1 - x2);
 	float yDis = abs(y1 - y2);
 	float zDis = xDis * xDis + yDis * yDis;
-	
+
 	return sqrt(zDis);
 
 }
 
 void ScoreText()
-{	
+{
 	string skorText = "Skor : " + to_string(Skor);
-
 	string heartText = "Hak : " + to_string(hak);
 
-	textShow(skorText, 320, 620);
-	textShow(heartText, 400, 620);
+	textShow(skorText, 320, 620, 0);
+	textShow(heartText, 400, 620, 0);
 }
 
-void textShow(std::string text, int x, int y) {
+void textShow(std::string text, int x, int y, bool color) {
 	std::string shownText = text;
 	std::string& shownTextPointer = shownText;
-
-	glColor3f(0, 0, 0);
+	if (color == 0) {
+		glColor3f(0, 0, 0);
+	}
 	glRasterPos2i(x, y);
 	for (int i = 0; i < shownText.size(); i++) {
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, shownTextPointer[i]);
@@ -493,6 +580,6 @@ void LoseText()
 	string skorText = "Kaybettin! Puan : " + to_string(Skor);
 	string againText = "YENIDEN BASLAMAK ICIN 'HOME' TUSUNA BAS..";
 
-	textShow(skorText, 150, 150);
-	textShow(againText, 20, 100);
+	textShow(skorText, 150, 150, 0);
+	textShow(againText, 20, 100, 0);
 }
